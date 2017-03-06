@@ -39,10 +39,8 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
      * TODO: Implement how moves your AI should play here. You should first
      * process the opponent's opponents move before calculating your own move
      */
-<<<<<<< HEAD
+
      //Jenny: we need to do this part
-    return nullptr;
-=======
     return opponentsMove;
->>>>>>> ab4d87a4be5e9428dab5e89d8b64d601bfcdea11
+
 }

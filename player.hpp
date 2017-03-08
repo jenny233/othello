@@ -4,6 +4,7 @@
 #include <iostream>
 #include "common.hpp"
 #include "board.hpp"
+#include <map>
 using namespace std;
 
 class Player {
@@ -12,6 +13,7 @@ private:
     Side side;
     Side opSide;
     Board board;
+    int getWeight(Move *move);
 public:
     Player(Side side);
     ~Player();

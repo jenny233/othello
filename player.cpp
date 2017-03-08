@@ -13,6 +13,10 @@ Player::Player(Side side) {
      * precalculating things, etc.) However, remember that you will only have
      * 30 seconds.
      */
+    this->board = Board();
+    this->side = side;
+    if(side == BLACK) this->opSide = WHITE;
+    else this->opSide = BLACK;
 }
 
 /*
@@ -40,7 +44,17 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
      * process the opponent's opponents move before calculating your own move
      */
 
-     //Jenny: we need to do this part
-    return opponentsMove;
+    board.doMove(opponentsMove, opSide);
+    for (int i = 0; i < 8; i++) {
+        for (int j = 0; j < 8; j++) {
+            Move *move = new Move(i, j);
+            if (board.checkMove(move, side)){
+                board.doMove(move, side);
+                return move;
+            }
+            delete move;
+        }
+    }
+    return nullptr;
 
 }

@@ -110,8 +110,10 @@ int Player::worstScore(Board *b,int depth, int currD, int alpha, int beta){
                             if (score < worst) worst = score;
                             if (alpha < worst)
                             {
-								return alpha;
+								alpha = worst;
 							}
+
+										
                         }
                         delete ourBoard;
                         delete ourMove;
@@ -166,7 +168,8 @@ int Player::bestestScore(Board *b,int depth, int currD, int alpha, int beta){
                 {
 					min = score;
 				}
-				if (min < beta) return beta;
+				if (min < beta) beta = min;
+				if (beta > alpha) return beta;
 				
             }
             delete opBoard;
@@ -177,70 +180,6 @@ int Player::bestestScore(Board *b,int depth, int currD, int alpha, int beta){
     return min;
 }
     
-/*
- * Compute the next move given the opponent's last move. Your AI is
- * expected to keep track of the board on its own. If this is the first move,
- * or if the opponent passed on the last move, then opponentsMove will be
- * nullptr.
- *
- * msLeft represents the time your AI has left for the total game, in
- * milliseconds. doMove() must take no longer than msLeft, or your AI will
- * be disqualified! An msLeft value of -1 indicates no time limit.
- *
- * The move returned must be legal; if there are no valid moves for your side,
- * return nullptr.
- */
-Move *Player::doMove2(Move *opponentsMove, int msLeft) {
-
-    // Find the list of all possible moves
-    // Calculate the worst score of these moves
-    // Find the best worst score out of these moves
-    // Do the move
-    
-    board.doMove(opponentsMove, opSide);
-    
-    
-    if(!board.hasMoves(side)){
-        return 0;
-    }
-    
-    // Best score is the max out of all the worst scores
-    int bestScore = -1000000000;
-    // Best move is the move with the best score
-    Move* bestMove = new Move(0,0);
-    
-    for (int i = 0; i < 8; i++) {
-        for (int j = 0; j < 8; j++) {
-            Move *move = new Move(i, j);
-            Board* newBoard = board.copy();
-            if (newBoard->checkMove(move, side)){
-                int alpha = 0;
-                int beta = 0;
-                
-                //std::cerr<<"--------Our Move: "<<i<<" "<<j<<"---------"<<std::endl;
-                
-                
-                newBoard->doMove(move, side);
-                int score = this->worstScore(newBoard, 3, 0, alpha, beta);
-                if(score > bestScore){
-                    bestScore = score;
-                    bestMove->setX(move->getX());
-                    bestMove->setY(move->getY());
-                    //std::cerr <<"new best score: " << score << std::endl;
-                }
-                
-            }
-            delete newBoard;
-            delete move;
-        }
-    }
-    
-    //std::cerr <<"do move" <<std::endl;
-    board.doMove(bestMove, side);
-    return bestMove;
-
-}
-
 /*
  * Compute the next move given the opponent's last move. Your AI is
  * expected to keep track of the board on its own. If this is the first move,
@@ -286,8 +225,8 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
                 
                 
                 newBoard->doMove(move, side);
-                int score = this->worstScore(newBoard, 5, 0, alpha, beta);
-                int score2 = this->bestestScore(newBoard, 5, 0, alpha, beta);
+                int score = this->worstScore(newBoard, 3, 0, alpha, beta);
+                int score2 = this->bestestScore(newBoard, 3, 0, alpha, beta);
                 alpha = score;
                 beta = score2;
                 if(score > bestScore){

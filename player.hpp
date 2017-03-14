@@ -14,12 +14,11 @@ private:
     Side opSide;
     Board board;
     int getWeight(Move *move);
+    int worstScore(Board *b,int depth, int currD);
 public:
     Player(Side side);
     ~Player();
-
     Move *doMove(Move *opponentsMove, int msLeft);
-    int worstScore(Board *b,int depth, int currD);
     // Flag to tell if the player is running within the test_minimax context
     bool testingMinimax;
 };

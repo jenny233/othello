@@ -66,8 +66,8 @@ int Player::worstScore(Board *b,int depth, int currD){
     
     
     if(depth == currD){
-        // return the number of pieces on this->side
-        return b->count(this->side);
+        // return the difference of stones between us and opponent
+        return b->count(this->side) - b->count(this->opSide);
     }
     
     int worst = 100000000;
@@ -159,7 +159,7 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
                 
                 
                 newBoard->doMove(move, side);
-                int score = this->worstScore(newBoard, 3, 0);
+                int score = this->worstScore(newBoard, 2, 0);
                 if(score > bestScore){
                     bestScore = score;
                     bestMove->setX(move->getX());

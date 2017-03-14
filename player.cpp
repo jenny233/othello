@@ -27,32 +27,7 @@ Player::Player(Side side) {
 Player::~Player() {
 }
 
-/*
- * Compute the influence of corners, edges, etc. on the score of a particular
- * move.
- */
-int Player::getWeight(Move *move){
-    int x = move->getX();
-    int y = move->getY();
-    if((x == 0 || x == 7) && (y == 0 || y == 7)){   // Corners
-        return 15;
-    }else if(x == 0 || x == 7 || y == 0 || y == 7){ // Edges
-        if(x == 1 || x == 6 || y == 1 || y == 6){   // One next to corner
-            return -10;
-        }else{
-            return 10;                               // Normal Edges
-        }
-    }else if((x == 1 || x == 6) && (y == 1 || y == 6)){ // Diag. next to corner
-        return -10;
-	}
-     else if (( x == 1 || x == 6) || (y == 1 || y == 6))
-     {
-		 return -5;
-	 }
-    else{
-        return 0;
-    }
-}
+
 
 /**
  * Compute the worst score that can happen after doing a certain move on
@@ -67,12 +42,11 @@ int Player::getWeight(Move *move){
  * int worst   The worst score that can happen
  *             One round of speculation = 1 x opponent + 1 x us
  */
-int Player::worstScore(Board *b,int depth, int currD, int alpha, int beta){
+int Player::worstScore(Board *b,int depth, int alpha, int beta, time_t t0, int moveTime){
     
     //std::cerr << "depth: "<<depth << " " << currD << std::endl;
     
-    
-    if(depth == currD){
+    if(depth == 0 || moveTime <= 0){
         // return the difference of stones between us and opponent
         //return b->count(this->side) - b->count(this->opSide);
         return calculateScore(b);
@@ -104,7 +78,11 @@ int Player::worstScore(Board *b,int depth, int currD, int alpha, int beta){
                             
                             
                             ourBoard->doMove(ourMove, this->side);
-                            int score = bestestScore(ourBoard, depth, currD+1, alpha, beta);
+                            
+                            time_t now;
+                            time(&now);
+                            moveTime -= difftime(now,t0) * 1000;
+                            int score = bestestScore(ourBoard, depth-1, alpha, beta, now, moveTime);
                             
                             //std::cerr<<"\tscore: "<<score<<std::endl;
                             
@@ -142,12 +120,12 @@ int Player::worstScore(Board *b,int depth, int currD, int alpha, int beta){
  * int min    The minimum score that can happen for an opponent
  *             One round of speculation = 1 x opponent + 1 x us
  */
-int Player::bestestScore(Board *b,int depth, int currD, int alpha, int beta){
+int Player::bestestScore(Board *b,int depth, int alpha, int beta, time_t t0, int moveTime){
     
     //std::cerr << "depth: "<<depth << " " << currD << std::endl;
     
     
-    if(depth == currD){
+    if(depth == 0 || moveTime <= 0){
         // return the number of pieces on this->side
         //return b->count(this->side);
         return calculateScore(b);
@@ -165,7 +143,11 @@ int Player::bestestScore(Board *b,int depth, int currD, int alpha, int beta){
                 //std::cerr<<"opMove: "<<i<<" "<<j<<std::endl;
                 
                 opBoard->doMove(opMove, opSide);
-                int score = worstScore(opBoard, depth, currD + 1, alpha, beta);
+                
+                time_t now;
+                time(&now);
+                moveTime -= difftime(now,t0) * 1000;
+                int score = worstScore(opBoard, depth-1, alpha, beta, now, moveTime);
                 if (score > min)
                 {
 					min = score;
@@ -198,24 +180,24 @@ int Player::bestestScore(Board *b,int depth, int currD, int alpha, int beta){
  * return nullptr.
  */
 Move *Player::doMove(Move *opponentsMove, int msLeft) {
-
     // Find the list of all possible moves
     // Calculate the worst score of these moves
     // Find the best worst score out of these moves
     // Do the move
     
     board.doMove(opponentsMove, opSide);
-    
-    
     if(!board.hasMoves(side)){
         return 0;
     }
+    
+    time_t t0;
+    time(&t0);
+    int movesLeft = 64 - board.countBlack() - board.countWhite();
+    int moveTime = msLeft / movesLeft;
+    
     int alpha = -10000;
     int beta = 10000;
-    
-    // Best score is the max out of all the worst scores
     int bestScore = -1000000000;
-    // Best move is the move with the best score
     Move* bestMove = new Move(0,0);
     
     for (int i = 0; i < 8; i++) {
@@ -229,8 +211,8 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
                 
                 
                 newBoard->doMove(move, side);
-                int score = this->worstScore(newBoard, DEPTH, 0, alpha, beta);
-                int score2 = this->bestestScore(newBoard, DEPTH, 0, alpha, beta);
+                int score = this->worstScore(newBoard, DEPTH, alpha, beta, t0, moveTime);
+                int score2 = this->bestestScore(newBoard, DEPTH, alpha, beta, t0, moveTime);
 
                 alpha = score;
                 beta = score2;

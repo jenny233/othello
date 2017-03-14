@@ -171,11 +171,9 @@ int Player::bestestScore(Board *b,int depth, int currD, int alpha, int beta){
 					min = score;
 				}
 				if (min < beta) beta = min;
-<<<<<<< HEAD
+
 				if (beta > alpha) return beta;
-=======
-                if (alpha < beta) return beta;
->>>>>>> 37251b47eefcd6634d216c86d771760bd5a6f3b4
+
 				
             }
             delete opBoard;

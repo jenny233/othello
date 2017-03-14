@@ -229,13 +229,9 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
                 
                 
                 newBoard->doMove(move, side);
-<<<<<<< HEAD
-                int score = this->worstScore(newBoard, 3, 0, alpha, beta);
-                int score2 = this->bestestScore(newBoard, 3, 0, alpha, beta);
-=======
                 int score = this->worstScore(newBoard, DEPTH, 0, alpha, beta);
                 int score2 = this->bestestScore(newBoard, DEPTH, 0, alpha, beta);
->>>>>>> 37251b47eefcd6634d216c86d771760bd5a6f3b4
+
                 alpha = score;
                 beta = score2;
                 if(score > bestScore){

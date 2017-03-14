@@ -1,6 +1,6 @@
 #include "player.hpp"
 
-#define DEPTH 7
+#define DEPTH 6
 
 /*
  * Constructor for the player; initialize everything here. The side your AI is

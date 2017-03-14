@@ -14,10 +14,12 @@ private:
     Side opSide;
     Board board;
     int getWeight(Move *move);
+    int worstScore(Board *b,int depth, int currD);
+    int calculateScore(Board *b);
+    int pieceScore(int i, int j, Board *b);
 public:
     Player(Side side);
     ~Player();
-
     Move *doMove(Move *opponentsMove, int msLeft);
     int worstScore(Board *b,int depth, int currD, int alpha, int beta);
     int bestestScore(Board *b, int depth, int currD, int alpha, int beta);

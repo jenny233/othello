@@ -1,6 +1,6 @@
 #include "player.hpp"
 
-// Test if github push & pull will cause conflicts
+#define DEPTH 3
 
 /*
  * Constructor for the player; initialize everything here. The side your AI is
@@ -73,8 +73,9 @@ int Player::worstScore(Board *b,int depth, int currD, int alpha, int beta){
     
     
     if(depth == currD){
-        // return the number of pieces on this->side
-        return b->count(this->side);
+        // return the difference of stones between us and opponent
+        //return b->count(this->side) - b->count(this->opSide);
+        return calculateScore(b);
     }
     
     int worst = 100000000;
@@ -148,7 +149,8 @@ int Player::bestestScore(Board *b,int depth, int currD, int alpha, int beta){
     
     if(depth == currD){
         // return the number of pieces on this->side
-        return b->count(this->side);
+        //return b->count(this->side);
+        return calculateScore(b);
     }
     
     int min = -100000000;
@@ -169,7 +171,11 @@ int Player::bestestScore(Board *b,int depth, int currD, int alpha, int beta){
 					min = score;
 				}
 				if (min < beta) beta = min;
+<<<<<<< HEAD
 				if (beta > alpha) return beta;
+=======
+                if (alpha < beta) return beta;
+>>>>>>> 37251b47eefcd6634d216c86d771760bd5a6f3b4
 				
             }
             delete opBoard;
@@ -225,8 +231,13 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
                 
                 
                 newBoard->doMove(move, side);
+<<<<<<< HEAD
                 int score = this->worstScore(newBoard, 3, 0, alpha, beta);
                 int score2 = this->bestestScore(newBoard, 3, 0, alpha, beta);
+=======
+                int score = this->worstScore(newBoard, DEPTH, 0, alpha, beta);
+                int score2 = this->bestestScore(newBoard, DEPTH, 0, alpha, beta);
+>>>>>>> 37251b47eefcd6634d216c86d771760bd5a6f3b4
                 alpha = score;
                 beta = score2;
                 if(score > bestScore){
@@ -246,4 +257,44 @@ Move *Player::doMove(Move *opponentsMove, int msLeft) {
     board.doMove(bestMove, side);
     return bestMove;
 
+}
+
+
+int Player::calculateScore(Board *b){
+    int score = 0;
+    for(int i=0; i<8; i++){
+        for(int j=0; j<8; j++){
+            
+            if(b->get(this->side, i, j)){
+                score += pieceScore(i, j, b);
+            }else if(b->get(this->opSide, i, j)){
+                score -= pieceScore(i, j, b);
+            }
+        }
+    }
+    return score;
+}
+
+int Player::pieceScore(int i, int j, Board *b){
+    int score = 0;
+    if( (i==0 || i==7) && (j==0 || j==7) ){   // Corners GOOD!!
+        score += 30;
+    }else if( i==0 || i==7 || j==0 || j==7 ){ // Edges
+        
+        if( i==1 || i==6 || j==1 || j==6 ){    // Edge next to corner BAD!!
+            score -= 5;
+        }else{                                 // Not next to corner GOOD!!
+            score += 5;
+        }
+        
+    }else if(i==1 && j==1 && !b->occupied(0, 0)){// Corner next to corner BAAAAAD!!!
+        score -= 10;
+    }else if(i==1 && j==6 && !b->occupied(0, 7)){
+        score -= 10;
+    }else if(i==6 && j==1 && !b->occupied(7, 0)){
+        score -= 10;
+    }else if(i==6 && j==6 && !b->occupied(7, 7)){
+        score -= 10;
+    }
+    return score;
 }

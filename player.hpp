@@ -13,9 +13,8 @@ private:
     Side side;
     Side opSide;
     Board board;
-    int getWeight(Move *move);
-    int worstScore(Board *b,int depth, int alpha, int beta, time_t t0, int moveTime);
-    int bestestScore(Board *b,int depth, int alpha, int beta, time_t t0, int moveTime);
+    int worstScore(Board *b,int depth, int currD, int alpha, int beta);
+    int bestestScore(Board *b,int depth, int currD, int alpha, int beta);
     int calculateScore(Board *b);
     int pieceScore(int i, int j, Board *b);
 public:

@@ -1,6 +1,6 @@
 #include "player.hpp"
 
-#define DEPTH 3
+#define DEPTH 4
 
 /*
  * Constructor for the player; initialize everything here. The side your AI is
@@ -91,7 +91,7 @@ int Player::worstScore(Board *b,int depth, int alpha, int beta, time_t t0, int m
                             {
 								alpha = worst;
 							}
-
+							if (alpha > beta) return alpha;
 										
                         }
                         delete ourBoard;
@@ -138,26 +138,44 @@ int Player::bestestScore(Board *b,int depth, int alpha, int beta, time_t t0, int
         for (int j = 0; j < 8; j++) {
             Board *opBoard = b->copy();
             Move *opMove = new Move(i, j);
-            if (opBoard->checkMove(opMove, opSide)){
+             if (opBoard->checkMove(opMove, opSide)){
                 
                 //std::cerr<<"opMove: "<<i<<" "<<j<<std::endl;
                 
                 opBoard->doMove(opMove, opSide);
                 
-                time_t now;
-                time(&now);
-                moveTime -= difftime(now,t0) * 1000;
-                int score = worstScore(opBoard, depth-1, alpha, beta, now, moveTime);
-                if (score > min)
-                {
-					min = score;
-				}
-				if (min < beta) beta = min;
+                // For each of the opponent's moves
+                // get a list of moves we can make to react
+                for(int k = 0; k < 8; k++){
+                    for(int l = 0; l < 8; l++){
+                        // Calculate a worst score for each of them
+                        Board *ourBoard = opBoard->copy();
+                        Move *ourMove = new Move(k, l);
+                        if(ourBoard->checkMove(ourMove, this->side)){
+                            
+                            //std::cerr<<"\tourMove: "<<k<<" "<<l;
+                            time_t now;
+                            time(&now);
+                            moveTime -= difftime(now,t0) * 1000;
+                            ourBoard->doMove(ourMove, this->side);
+                            int score = worstScore(opBoard, depth-1, alpha, beta, now, moveTime);
+                            
+                            
+                            //std::cerr<<"\tscore: "<<score<<std::endl;
+                            if (score > min){
+                                min = score;
+                            }
+                            if (min < beta) beta = min;
 
-				if (beta > alpha) return beta;
-
-				
+                            if (beta < alpha) return beta;
+										
+                        }
+                        delete ourBoard;
+                        delete ourMove;
+                    }
+                }      
             }
+          
             delete opBoard;
             delete opMove;
         }

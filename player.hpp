@@ -19,7 +19,9 @@ public:
     ~Player();
 
     Move *doMove(Move *opponentsMove, int msLeft);
-    int worstScore(Board *b,int depth, int currD);
+    Move *doMove2(Move *opponentsMove, int msLeft);
+    int worstScore(Board *b,int depth, int currD, int alpha, int beta);
+    int bestestScore(Board *b, int depth, int currD, int alpha, int beta);
     // Flag to tell if the player is running within the test_minimax context
     bool testingMinimax;
 };

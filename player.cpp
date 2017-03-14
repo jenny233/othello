@@ -1,6 +1,6 @@
 #include "player.hpp"
 
-#define DEPTH 3
+#define DEPTH 4
 
 /*
  * Constructor for the player; initialize everything here. The side your AI is
@@ -113,7 +113,7 @@ int Player::worstScore(Board *b,int depth, int currD, int alpha, int beta){
                             {
 								alpha = worst;
 							}
-
+							if (alpha > beta) return alpha;
 										
                         }
                         delete ourBoard;
@@ -160,22 +160,43 @@ int Player::bestestScore(Board *b,int depth, int currD, int alpha, int beta){
         for (int j = 0; j < 8; j++) {
             Board *opBoard = b->copy();
             Move *opMove = new Move(i, j);
-            if (opBoard->checkMove(opMove, opSide)){
+             if (opBoard->checkMove(opMove, opSide)){
                 
                 //std::cerr<<"opMove: "<<i<<" "<<j<<std::endl;
                 
                 opBoard->doMove(opMove, opSide);
-                int score = worstScore(opBoard, depth, currD + 1, alpha, beta);
-                if (score > min)
+                
+                // For each of the opponent's moves
+                // get a list of moves we can make to react
+                for(int k = 0; k < 8; k++){
+                    for(int l = 0; l < 8; l++){
+                        // Calculate a worst score for each of them
+                        Board *ourBoard = opBoard->copy();
+                        Move *ourMove = new Move(k, l);
+                        if(ourBoard->checkMove(ourMove, this->side)){
+                            
+                            //std::cerr<<"\tourMove: "<<k<<" "<<l;
+                            
+                            
+                            ourBoard->doMove(ourMove, this->side);
+                            int score = worstScore(ourBoard, depth, currD+1, alpha, beta);
+                            
+                            //std::cerr<<"\tscore: "<<score<<std::endl;
+                             if (score > min)
                 {
 					min = score;
 				}
 				if (min < beta) beta = min;
 
-				if (beta > alpha) return beta;
-
-				
+				if (beta < alpha) return beta;
+										
+                        }
+                        delete ourBoard;
+                        delete ourMove;
+                    }
+                }      
             }
+          
             delete opBoard;
             delete opMove;
         }
